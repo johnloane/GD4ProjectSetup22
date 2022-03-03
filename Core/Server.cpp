@@ -1,4 +1,5 @@
 #include "SocketWrapperPCH.hpp"
+#include "Server.hpp"
 
 
 //Client can contact the server that offers three services
@@ -6,26 +7,17 @@
 //DateAndTime - current date and time
 //Stats - returns the number of queries that the server has handled
 
-uint32_t ConvertIPToInt(std::string ip_string);
-const int32_t kMaxPacketSize = 1300;
-
-
-void DoServiceLoop(const UDPSocketPtr& shared);
-void ProcessReceivedData(char* str, int bytes_received, const SocketAddress& socket_address, const UDPSocketPtr& shared, int requests, bool service_running);
-std::string ReturnCurrentDateAndTime();
-enum class Choice{ECHO=1, DATEANDTIME=2, STATS=3, QUIT=4};
-
 int main()
 {
 	SocketUtil::StaticInit();
 	UDPSocketPtr server_socket = SocketUtil::CreateUDPSocket(INET);
-	SocketAddress server_address = SocketAddress(ConvertIPToInt("127.0.0.1"), 50005);
+	SocketAddress server_address = SocketAddress(Server::ConvertIPToInt("127.0.0.1"), 50005);
 	server_socket->Bind(server_address);
 	server_socket->SetNonBlockingMode(false);
-	DoServiceLoop(server_socket);
+	Server::DoServiceLoop(server_socket);
 }
 
-uint32_t ConvertIPToInt(std::string ip_string)
+uint32_t Server::ConvertIPToInt(std::string ip_string)
 {
 	u_int int_ip = 0;
 
@@ -55,7 +47,7 @@ uint32_t ConvertIPToInt(std::string ip_string)
 
 
 
-void DoServiceLoop(const UDPSocketPtr& server_socket)
+void Server::DoServiceLoop(const UDPSocketPtr& server_socket)
 {
 	bool service_running = true;
 	char receive_buffer[kMaxPacketSize];
@@ -80,7 +72,7 @@ void DoServiceLoop(const UDPSocketPtr& server_socket)
 	}
 }
 
-void ProcessReceivedData(char* receive_buffer, int bytes_received, const SocketAddress& socket_address, const UDPSocketPtr& server_socket, int requests, bool service_running)
+void Server::ProcessReceivedData(char* receive_buffer, int bytes_received, const SocketAddress& socket_address, const UDPSocketPtr& server_socket, int requests, bool service_running)
 {
 	std::cout << "Got " << bytes_received << " from " << socket_address.ToString() << std::endl;
 	std::cout << "The message is: " << receive_buffer << std::endl;
@@ -116,7 +108,7 @@ void ProcessReceivedData(char* receive_buffer, int bytes_received, const SocketA
 	int bytes_send = server_socket->SendTo(response_data, sizeof(response_data), socket_address);
 }
 
-std::string ReturnCurrentDateAndTime()
+std::string Server::ReturnCurrentDateAndTime()
 {
 	auto now = std::chrono::system_clock::now();
 	auto in_time_t = std::chrono::system_clock::to_time_t(now);
