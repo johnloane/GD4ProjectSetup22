@@ -57,4 +57,9 @@ using std::unordered_set;
 #include "UDPSocket.hpp"
 #include "TCPSocket.hpp"
 #include "SocketUtil.hpp"
+#include "Math.hpp"
+#include "ByteSwap.hpp"
+#include "MemoryStream.hpp"
+#include "MemoryBitStream.hpp"
+
 
