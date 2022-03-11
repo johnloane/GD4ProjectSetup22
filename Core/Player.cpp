@@ -33,5 +33,12 @@ void Player::Read(InputMemoryStream& in_stream)
 
 void Player::toString() const
 {
-	std::cout << "Health: " << m_health << " ,Ammo: " << m_ammo << std::endl;
+	std::cout << m_name << " has Health: " << m_health << ", Ammo: " << m_ammo <<
+		" Position: " << "(" << m_position.mX << "," <<
+		m_position.mY << "," << m_position.mZ << ")" << " Quaternion: " <<
+		"(" << m_rotation.mX << "," << m_rotation.mY << "," << m_rotation.mZ << "," << m_rotation.mW << ")" << std::endl;
+	for (int i = 0; i < m_weapons.size(); i++)
+	{
+		std::cout << m_weapons[i] << std::endl;
+	}
 }
