@@ -9,5 +9,6 @@ public:
 	static void DoServiceLoop(const UDPSocketPtr& server_socket);
 	static void ProcessReceivedData(char* receive_buffer, int bytes_received, const SocketAddress& socket_address, const UDPSocketPtr& server_socket, int requests, bool service_running);
 	static std::string ReturnCurrentDateAndTime();
-	enum class Choice { ECHO = 1, DATEANDTIME, STATS, QUIT};
+	static void ReceivePlayerInputByteStream(UDPSocketPtr server_socket);
+	enum class Choice { ECHO = 1, DATEANDTIME, STATS, QUIT, SENDPLAYERBYTESTREAM};
 };

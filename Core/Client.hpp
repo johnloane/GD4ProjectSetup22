@@ -1,5 +1,6 @@
 #pragma once
 
+
 class Client
 {
 public:
@@ -11,5 +12,6 @@ public:
 	static void ProcessReceivedData(char* receive_buffer, int bytes_received, SocketAddress socket_address, bool& service_running);
 	static int ConvertIPToInt(std::string ip_string);
 	static const int32_t kMaxPacketSize = 1300;
-
+	static void ByteSwapTest();
+	static void SendPlayerOutputByteStream(UDPSocketPtr client_socket, const Player* player);
 };

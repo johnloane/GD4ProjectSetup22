@@ -14,7 +14,8 @@ int main()
 	SocketAddress server_address = SocketAddress(Server::ConvertIPToInt("127.0.0.1"), 50005);
 	server_socket->Bind(server_address);
 	server_socket->SetNonBlockingMode(false);
-	Server::DoServiceLoop(server_socket);
+	Server::ReceivePlayerInputByteStream(server_socket);
+	//Server::DoServiceLoop(server_socket);
 }
 
 uint32_t Server::ConvertIPToInt(std::string ip_string)
@@ -116,5 +117,18 @@ std::string Server::ReturnCurrentDateAndTime()
 	std::stringstream ss;
 	ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
 	return ss.str();
+}
+
+void Server::ReceivePlayerInputByteStream(UDPSocketPtr server_socket)
+{
+	Player* receiver = new Player();
+	SocketAddress sender_address;
+
+	char* temporary_buffer = static_cast<char*>(std::malloc(kMaxPacketSize));
+	int bytes_received = server_socket->ReceiveFrom(temporary_buffer, kMaxPacketSize, sender_address);
+	InputMemoryStream stream(temporary_buffer, static_cast<uint32_t>(bytes_received));
+	receiver->Read(stream);
+	std::cout << "Received: " << bytes_received;
+	receiver->toString();
 }
 

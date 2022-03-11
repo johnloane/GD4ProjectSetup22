@@ -14,10 +14,16 @@ int main()
 {
 	Player* alex = new Player();
 	std::cout << sizeof(*alex) << std::endl;
-	// SocketUtil::StaticInit();
-	// UDPSocketPtr clientSocket = SocketUtil::CreateUDPSocket(INET);
-	// clientSocket->SetNonBlockingMode(false);
-	// Client::DoServiceLoop(clientSocket);
+	//Client::ByteSwapTest();
+	
+
+	SocketUtil::StaticInit();
+	UDPSocketPtr client_socket = SocketUtil::CreateUDPSocket(INET);
+	client_socket->SetNonBlockingMode(false);
+	//Client::DoServiceLoop(client_socket);
+
+	Client::SendPlayerOutputByteStream(client_socket, alex);
+	system("pause");
 }
 
 void Client::DoServiceLoop(UDPSocketPtr clientSocket)
@@ -110,3 +116,20 @@ void Client::ProcessReceivedData(char* receiveBuffer, int bytesReceived, SocketA
 	std::cout << "Got " << bytesReceived << " from " << socketAddress.ToString() << std::endl;
 	std::cout << "The message is: " << receiveBuffer << std::endl;
 }
+
+void Client::ByteSwapTest()
+{
+	uint16_t value = 16;
+	uint16_t swapped = ByteSwap(value);
+	std::cout << value << "Swapped: " << swapped << std::endl;
+}
+
+void Client::SendPlayerOutputByteStream(UDPSocketPtr client_socket, const Player* player)
+{
+	SocketAddress server_address = SocketAddress(ConvertIPToInt("127.0.0.1"), 50005);
+	OutputMemoryStream out_stream;
+	player->Write(out_stream);
+	int bytes_sent = client_socket->SendTo(out_stream.GetBufferPtr(), out_stream.GetLength(), server_address);
+	std::cout << "Sent: " << bytes_sent << std::endl;
+}
+
