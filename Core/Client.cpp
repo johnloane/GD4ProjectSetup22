@@ -20,9 +20,12 @@ int main()
 	SocketUtil::StaticInit();
 	UDPSocketPtr client_socket = SocketUtil::CreateUDPSocket(INET);
 	client_socket->SetNonBlockingMode(false);
-	//Client::DoServiceLoop(client_socket);
+	Client::DoServiceLoop(client_socket);
 
-	Client::SendPlayerOutputByteStream(client_socket, alex);
+	//Client::SendPlayerOutputByteStream(client_socket, alex);
+	//Client::SendPlayerBits(client_socket, alex);
+	LinkingContext game_context = LinkingContext();
+	Client::SendWorld(client_socket, alex, game_context);
 	system("pause");
 }
 
@@ -131,5 +134,31 @@ void Client::SendPlayerOutputByteStream(UDPSocketPtr client_socket, const Player
 	player->Write(out_stream);
 	int bytes_sent = client_socket->SendTo(out_stream.GetBufferPtr(), out_stream.GetLength(), server_address);
 	std::cout << "Sent: " << bytes_sent << std::endl;
+}
+
+void Client::SendPlayerBits(UDPSocketPtr clientSocket, const Player* player)
+{
+	SocketAddress serverAddress = SocketAddress(ConvertIPToInt("127.0.0.1"), 50005);
+	OutputMemoryBitStream outBitStream;
+	player->WriteBits(outBitStream);
+	int bytesSent = clientSocket->SendTo(outBitStream.GetBufferPtr(), outBitStream.GetByteLength(), serverAddress);
+	std::cout << "Sent: " << bytesSent << std::endl;
+}
+
+void Client::SendWorld(UDPSocketPtr client_socket, Player* player, LinkingContext game_context)
+{
+	SocketAddress serverAddress = SocketAddress(ConvertIPToInt("127.0.0.1"), 50005);
+	OutputMemoryBitStream outBitStream;
+	//First send the type of packet
+	PacketType or_packet = PT_ReplicationData;
+	outBitStream.WriteBits(&or_packet, GetRequiredBits<PacketType::PT_MAX>::Value);
+	//Send the id of the player
+	uint32_t network_id = game_context.GetNetworkId(player, true);
+	std::cout << "Id is: " << network_id << std::endl;
+	outBitStream.WriteBits(network_id, 32);
+	player->WriteBits(outBitStream);
+	int bytesSent = client_socket->SendTo(outBitStream.GetBufferPtr(), outBitStream.GetByteLength(), serverAddress);
+	std::cout << "Sent: " << bytesSent << std::endl;
+
 }
 

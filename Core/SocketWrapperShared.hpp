@@ -51,6 +51,7 @@ using std::string;
 using std::unordered_set;
 
 
+
 #include "StringUtils.hpp"
 #include "SocketAddress.hpp"
 #include "SocketAddressFactory.hpp"
@@ -61,7 +62,11 @@ using std::unordered_set;
 #include "ByteSwap.hpp"
 #include "MemoryStream.hpp"
 #include "MemoryBitStream.hpp"
+#include "GameObject.hpp"
 #include "Player.hpp"
+
+#include "LinkingContext.hpp"
+#include "PacketType.hpp"
 
 
 

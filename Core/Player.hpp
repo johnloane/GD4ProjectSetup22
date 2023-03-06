@@ -1,5 +1,5 @@
 #pragma once
-class Player
+class Player : public GameObject
 {
 public:
 	Player() : m_health(10), m_ammo(3), m_name("Default"), m_position(10, 10, 10), m_rotation(0, 0, 0, 1), m_weapons{ 60, 70, 80, 90, 100 }{}
@@ -7,6 +7,8 @@ public:
 	uint32_t GetAmmo() const;
 	void Write(OutputMemoryStream& out_stream) const;
 	void Read(InputMemoryStream& in_stream);
+	void WriteBits(OutputMemoryBitStream& outBitStream) const;
+	void ReadBits(InputMemoryBitStream& instream);
 	virtual void toString() const;
 
 

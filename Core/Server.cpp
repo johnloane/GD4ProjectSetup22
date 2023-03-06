@@ -14,7 +14,11 @@ int main()
 	SocketAddress server_address = SocketAddress(Server::ConvertIPToInt("127.0.0.1"), 50005);
 	server_socket->Bind(server_address);
 	server_socket->SetNonBlockingMode(false);
-	Server::ReceivePlayerInputByteStream(server_socket);
+	//Server::ReceivePlayerInputByteStream(server_socket);
+	//Server::ReceivePlayerBits(server_socket);
+	Player* receive_player = new Player();
+	LinkingContext* server_context = new LinkingContext();
+	Server::ReceiveWorld(server_socket, receive_player, server_context);
 	//Server::DoServiceLoop(server_socket);
 }
 
@@ -131,4 +135,43 @@ void Server::ReceivePlayerInputByteStream(UDPSocketPtr server_socket)
 	std::cout << "Received: " << bytes_received;
 	receiver->toString();
 }
+
+void Server::ReceivePlayerBits(UDPSocketPtr serverSock)
+{
+	SocketAddress senderAddress;
+	Player* receiver = new Player();
+	char* temporaryBuffer = static_cast<char*>(std::malloc(Server::kMaxPacketSize));
+	int receivedByteCount = serverSock->ReceiveFrom(temporaryBuffer, Server::kMaxPacketSize, senderAddress);
+	InputMemoryBitStream stream(temporaryBuffer, static_cast<uint32_t>(receivedByteCount * 8));
+	receiver->ReadBits(stream);
+	std::cout << "Received: " << receivedByteCount << std::endl;
+	receiver->toString();
+}
+
+void Server::ReceiveWorld(UDPSocketPtr serverSock, Player* player, LinkingContext* game_context)
+{
+	SocketAddress senderAddress;
+	char* temporaryBuffer = static_cast<char*>(std::malloc(kMaxPacketSize));
+	int receivedByteCount = serverSock->ReceiveFrom(temporaryBuffer, kMaxPacketSize, senderAddress);
+	InputMemoryBitStream stream(temporaryBuffer, static_cast<uint32_t>(receivedByteCount * 8));
+	PacketType receivePacket;
+	stream.ReadBits(&receivePacket, 2);
+	uint32_t networkId;
+	stream.ReadBits(&networkId, 32);
+	if (game_context->GetGameObject(networkId) == nullptr)
+	{
+		std::cout << "Object does not exists. Need to create it" << std::endl;
+		int newId = game_context->GetNetworkId(player, true);
+		std::cout << "Object now has an id: " << newId << std::endl;
+	}
+	else
+	{
+		std::cout << "Object does exist. Copy data into it" << std::endl;
+	}
+	std::cout << "Received: " << receivePacket << std::endl;
+	player->ReadBits(stream);
+	std::cout << "Received: " << receivedByteCount << std::endl;
+	player->toString();
+}
+
 

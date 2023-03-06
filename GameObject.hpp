@@ -3,7 +3,6 @@
 enum { kClassId = inCode }; \
 virtual uint32_t GetClassId() const { return kClassId; } \
 static GameObject* CreateInstance() { return static_cast< GameObject* >( new inClass() ); } \
-class Player;
 
 class GameObject
 {
